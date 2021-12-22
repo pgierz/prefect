@@ -163,17 +163,12 @@ def projects(name):
 
     project_data = result.data.project
 
-    output = []
-    for item in project_data:
-        output.append(
-            [
+    output = [[
                 item.name,
                 item.flows_aggregate.aggregate.count,
                 pendulum.parse(item.created).diff_for_humans(),
                 item.description,
-            ]
-        )
-
+            ] for item in project_data]
     click.echo(
         tabulate(
             output,
@@ -349,19 +344,14 @@ def tasks(name, flow_name, flow_version, project, limit):
 
     task_data = result.data.task
 
-    output = []
-    for item in task_data:
-        output.append(
-            [
+    output = [[
                 item.name,
                 item.flow.name,
                 item.flow.version,
                 pendulum.parse(item.created).diff_for_humans(),
                 item.mapped,
                 item.type,
-            ]
-        )
-
+            ] for item in task_data]
     click.echo(
         tabulate(
             output,

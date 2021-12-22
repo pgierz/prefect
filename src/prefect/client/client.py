@@ -202,7 +202,7 @@ class Client:
         a specific tenant id set, this will verify that the given tenant id is
         compatible with the API key because the tenant will be attached to the request.
         """
-        if not prefect.config.backend == "cloud":
+        if prefect.config.backend != "cloud":
 
             raise ValueError(
                 "Authentication is only supported for Prefect Cloud. "
@@ -555,21 +555,18 @@ class Client:
             retry_on_api_error=retry_on_api_error,
         )
 
-        # TODO: It looks like this code is never reached because errors are raised
-        #       in self._send_request by default
-        if raise_on_error and "errors" in result:
-            if "UNAUTHENTICATED" in str(result["errors"]):
-                raise AuthorizationError(result["errors"])
-            elif "Malformed Authorization header" in str(result["errors"]):
-                raise AuthorizationError(result["errors"])
-            elif (
-                result["errors"][0].get("extensions", {}).get("code")
-                == "VERSION_LOCKING_ERROR"
-            ):
-                raise VersionLockMismatchSignal(result["errors"])
-            raise ClientError(result["errors"])
-        else:
+        if not raise_on_error or "errors" not in result:
             return GraphQLResult(result)  # type: ignore
+        if "UNAUTHENTICATED" in str(result["errors"]):
+            raise AuthorizationError(result["errors"])
+        elif "Malformed Authorization header" in str(result["errors"]):
+            raise AuthorizationError(result["errors"])
+        elif (
+            result["errors"][0].get("extensions", {}).get("code")
+            == "VERSION_LOCKING_ERROR"
+        ):
+            raise VersionLockMismatchSignal(result["errors"])
+        raise ClientError(result["errors"])
 
     def _send_request(
         self,
@@ -755,7 +752,7 @@ class Client:
         if "API_ERROR" in str(json_resp.get("errors")) and retry_on_api_error:
             success, retry_count = False, 0
             # retry up to six times
-            while success is False and retry_count < 6:
+            while not success and retry_count < 6:
                 response = self._send_request(
                     session=session,
                     method=method,
@@ -1078,11 +1075,9 @@ class Client:
         required_parameters = {p for p in flow.parameters() if p.required}
         if flow.schedule is not None and required_parameters:
             required_names = {p.name for p in required_parameters}
-            if not all(
-                [
-                    required_names <= set(c.parameter_defaults.keys())
-                    for c in flow.schedule.clocks
-                ]
+            if any(
+                required_names > set(c.parameter_defaults.keys())
+                for c in flow.schedule.clocks
             ):
                 raise ClientError(
                     "Flows with required parameters can not be scheduled automatically."
@@ -1758,10 +1753,9 @@ class Client:
         query = {"query": {with_args("task_run", args): "serialized_state"}}
         result = self.graphql(query)  # type: Any
         deserializer = prefect.engine.state.State.deserialize
-        valid_states = [
+        return [
             deserializer(res.serialized_state) for res in result.data.task_run
         ]
-        return valid_states
 
     def get_task_run_info(
         self, flow_run_id: str, task_id: str, map_index: Optional[int] = None

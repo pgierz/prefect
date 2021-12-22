@@ -116,9 +116,7 @@ class AWSClientWait(Task):
         try:
             waiter.wait(**waiter_kwargs)
         except WaiterError as e:
-            raise FAIL(
-                f"AWS {client} waiter '{waiter_name}' failed with: {str(e)}"
-            ) from e
+            raise FAIL(f"AWS {client} waiter '{waiter_name}' failed with: {e}") from e
 
     @staticmethod
     def _load_prefect_waiter(

@@ -486,7 +486,7 @@ def test_watch_flow_run_already_finished(patch_post):
     data["updated"] = pendulum.now().subtract(minutes=5).isoformat()
     patch_post({"data": {"flow_run": [data]}})
 
-    logs = [log for log in watch_flow_run("id")]
+    logs = list(watch_flow_run("id"))
     assert len(logs) == 1
     log = logs[0]
     assert log.message == "Your flow run finished 5 minutes ago"
@@ -585,5 +585,5 @@ def test_watch_flow_run_timeout(monkeypatch):
     monkeypatch.setattr("prefect.backend.flow_run.time.sleep", MagicMock())
 
     with pytest.raises(RuntimeError, match="timed out after 12 hours of waiting"):
-        for log in watch_flow_run("id"):
+        for _ in watch_flow_run("id"):
             pass

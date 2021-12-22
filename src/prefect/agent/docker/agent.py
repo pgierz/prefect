@@ -247,14 +247,10 @@ class DockerAgent(Agent):
         for volume_spec in volume_specs:
             fields = volume_spec.split(":")
 
-            if fields[-1] in ("ro", "rw"):
-                mode = fields.pop()
-            else:
-                mode = "rw"
-
+            mode = fields.pop() if fields[-1] in ("ro", "rw") else "rw"
             if len(fields) == 3 and len(fields[0]) == 1:
                 # C:\path1:/path2   <-- extenal and internal path
-                external = ntpath.normpath(":".join(fields[0:2]))
+                external = ntpath.normpath(":".join(fields[:2]))
                 internal = posixpath.normpath(fields[2])
             elif len(fields) == 2:
                 combined_path = ":".join(fields)
@@ -328,10 +324,7 @@ class DockerAgent(Agent):
                 external = posixpath.normpath(fields[0].strip())
                 internal = posixpath.normpath(fields[1].strip())
 
-            mode = "rw"
-            if len(fields) == 3:
-                mode = fields[2]
-
+            mode = fields[2] if len(fields) == 3 else "rw"
             container_mount_paths.append(internal)
 
             if external and self._is_named_volume_unix(external):
@@ -491,11 +484,10 @@ class DockerAgent(Agent):
                     ports=ports,
                 )
             except docker.errors.APIError as exc:
-                if "Conflict" in str(exc) and "container name" in str(exc):
-                    index += 1
-                    container_name = f"{slugified_name}-{index}"
-                else:
+                if "Conflict" not in str(exc) or "container name" not in str(exc):
                     raise
+                index += 1
+                container_name = f"{slugified_name}-{index}"
             else:
                 break
 
@@ -569,12 +561,11 @@ class DockerAgent(Agent):
         # Set the API to be the same as the agent connects to, but since the flow run
         # will be in a container and our inferences above are not perfect, allow the
         # user to override the value
-        env = {"PREFECT__CLOUD__API": api}
+        env = {
+            'PREFECT__CLOUD__API': api,
+            'PREFECT__LOGGING__LEVEL': config.logging.level,
+        }
 
-        # 1. Logging level from config
-        # Default to the config logging level, allowing it to be overriden
-        # by later config soruces
-        env.update({"PREFECT__LOGGING__LEVEL": config.logging.level})
 
         # 2. Values set on the agent via `--env`
         env.update(self.env_vars)

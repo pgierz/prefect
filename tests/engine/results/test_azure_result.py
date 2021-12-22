@@ -21,9 +21,9 @@ class TestAzureResult:
 
     def test_azure_init(self, azure_client):
         result = AzureResult(container="bob", connection_string="conn")
-        assert result.value == None
+        assert result.value is None
         assert result.connection_string == "conn"
-        assert result.connection_string_secret == None
+        assert result.connection_string_secret is None
         assert azure_client.called is False
         result.initialize_service()
         assert azure_client.called is True

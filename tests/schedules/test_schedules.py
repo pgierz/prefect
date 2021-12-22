@@ -88,7 +88,7 @@ def test_create_schedule_multiple_overlapping_clocks_distinguishes_parameters():
     output = s.next(2, after=dt, return_events=True)
     assert len(output) == 2
     assert [e.start_time for e in output] == [special_day] * 2
-    assert set(e.parameter_defaults["a"] for e in output) == {1, 2}
+    assert {e.parameter_defaults["a"] for e in output} == {1, 2}
 
 
 def test_create_schedule_multiple_overlapping_clocks_emit_events_if_asked():

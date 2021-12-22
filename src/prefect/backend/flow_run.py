@@ -93,19 +93,17 @@ def watch_flow_run(
         # Get the latest state
         flow_run = flow_run.get_latest()
 
-        # Get a rounded time elapsed for display purposes
-        total_time_elapsed_rounded = round(total_time_elapsed / 5) * 5
         # Check for a really long run
-        if total_time_elapsed > 60 * 60 * 12:
+        if total_time_elapsed > 60 ** 2 * 12:
             raise RuntimeError(
                 "`watch_flow_run` timed out after 12 hours of waiting for completion. "
                 "Your flow run is still in state: {flow_run.state}"
             )
 
         if (
-            stream_states  # The agent warning is counted as a state log
+            stream_states
             and total_time_elapsed >= agent_warning_initial_wait
-            and agent_warning_time_elapsed > agent_warning_repeat_interval
+            and agent_warning_time_elapsed > agent_warning_time_elapsed
             and not (
                 flow_run.state.is_submitted()
                 or flow_run.state.is_running()
@@ -113,6 +111,8 @@ def watch_flow_run(
             )
         ):
             agent_msg = check_for_compatible_agents(flow_run.labels)
+            # Get a rounded time elapsed for display purposes
+            total_time_elapsed_rounded = round(total_time_elapsed / 5) * 5
             yield FlowRunLog(
                 timestamp=pendulum.now(),
                 level=logging.WARN,
@@ -152,16 +152,8 @@ def watch_flow_run(
                 # not seen yet`
                 last_log_timestamp = logs[-1].timestamp
 
-        for flow_run_log in sorted(messages):
-            yield flow_run_log
-
-        if not messages:
-            # Delay the poll if there are no messages
-            poll_interval = int(poll_interval * poll_factor)
-        else:
-            # Otherwise reset to the min poll time for a fast query
-            poll_interval = poll_min
-
+        yield from sorted(messages)
+        poll_interval = int(poll_interval * poll_factor) if not messages else poll_min
         poll_interval = min(poll_interval, poll_max)
         time.sleep(poll_interval)
         agent_warning_time_elapsed += poll_interval
@@ -587,7 +579,7 @@ class FlowRunView:
             task_runs = []
 
         # Combine with the provided `_cached_task_runs` iterable
-        task_runs = task_runs + list(_cached_task_runs or [])
+        task_runs += list(_cached_task_runs or [])
 
         return cls._from_flow_run_data(flow_run_data, task_runs=task_runs)
 

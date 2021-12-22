@@ -330,10 +330,11 @@ def temporary_logger_config(
     previous_log_level = logger.level
 
     overrides = {
-        "logging.level": level if level else None,
+        "logging.level": level or None,
         "logging.format": stream_fmt,
         "logging.datefmt": stream_datefmt,
     }
+
     # Drop empty values to retain existing settings
     overrides = {key: value for key, value in overrides.items() if value}
 

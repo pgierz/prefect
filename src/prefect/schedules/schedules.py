@@ -77,11 +77,11 @@ class Schedule:
 
     @property
     def start_date(self) -> Optional[datetime]:
-        return min([c.start_date for c in self.clocks if c.start_date], default=None)
+        return min((c.start_date for c in self.clocks if c.start_date), default=None)
 
     @property
     def end_date(self) -> Optional[datetime]:
-        return max([c.end_date for c in self.clocks if c.end_date], default=None)
+        return max((c.end_date for c in self.clocks if c.end_date), default=None)
 
     def next(
         self, n: int, after: datetime = None, return_events: bool = False

@@ -96,17 +96,16 @@ def fetch_live_aircraft_data(
 
     options = {}
     if area != None:
-        if isinstance(area, Area):
-            area.validate()
-            area_fields = area.bounding_box
-
-            options["lamin"] = area_fields[0]
-            options["lamax"] = area_fields[1]
-            options["lomin"] = area_fields[2]
-            options["lomax"] = area_fields[3]
-        else:
+        if not isinstance(area, Area):
             raise ValueError("Bad area given")
 
+        area.validate()
+        area_fields = area.bounding_box
+
+        options["lamin"] = area_fields[0]
+        options["lamax"] = area_fields[1]
+        options["lomin"] = area_fields[2]
+        options["lomax"] = area_fields[3]
     capture_path = _capture_path(area)
 
     if offline and os.path.exists(capture_path):

@@ -38,11 +38,10 @@ class GCSBaseTask(Task):
         try:
             bucket = client.get_bucket(bucket)
         except NotFound as exc:
-            if create_bucket is True:
-                self.logger.debug("Bucket {} not found; creating...".format(bucket))
-                bucket = client.create_bucket(bucket)
-            else:
+            if not create_bucket:
                 raise exc
+            self.logger.debug("Bucket {} not found; creating...".format(bucket))
+            bucket = client.create_bucket(bucket)
         return bucket
 
     def _get_blob(

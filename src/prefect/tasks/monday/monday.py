@@ -79,8 +79,7 @@ class CreateItem(Task):
             "ITEM_NAME": item_name,
         }
         if column_values:
-            variables.update({"COLUMN_VALUES": json.dumps(column_values)})
-
+            variables["COLUMN_VALUES"] = json.dumps(column_values)
         query = """
             mutation (
                 $MONDAY_BOARD_ID:Int!,

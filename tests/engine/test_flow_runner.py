@@ -66,25 +66,21 @@ class ErrorTask(Task):
 class RaiseFailTask(Task):
     def run(self):
         raise prefect.engine.signals.FAIL("custom-fail-message")
-        raise ValueError("custom-error-message")  # pylint: disable=W0101
 
 
 class RaiseSkipTask(Task):
     def run(self):
         raise prefect.engine.signals.SKIP()
-        raise ValueError()  # pylint: disable=W0101
 
 
 class RaiseSuccessTask(Task):
     def run(self):
         raise prefect.engine.signals.SUCCESS()
-        raise ValueError()  # pylint: disable=W0101
 
 
 class RaiseRetryTask(Task):
     def run(self):
         raise prefect.engine.signals.RETRY()
-        raise ValueError()  # pylint: disable=W0101
 
 
 class ReturnTask(Task):

@@ -1669,7 +1669,7 @@ def test_create_flow_run_with_input(patch_post, use_flow_id, use_extra_args):
     assert client.create_flow_run(**kwargs) == "FOO"
     variables = json.loads(post.call_args[1]["json"]["variables"])
     input = variables["input"]
-    assert variables["input"] == expected
+    assert input == expected
 
 
 def test_get_default_tenant_slug_as_user(patch_post):

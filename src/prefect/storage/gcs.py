@@ -154,13 +154,12 @@ class GCS(Storage):
                     blob = bucket.blob(blob_name=self.flows[flow_name])
                     with open(self.local_script_path) as file_obj:
                         blob.upload_from_file(file_obj)
-            else:
-                if not self.key:
-                    raise ValueError(
-                        "A `key` must be provided to show where flow `.py` file is stored in GCS or "
-                        "provide a `local_script_path` pointing to a local script that contains the "
-                        "flow."
-                    )
+            elif not self.key:
+                raise ValueError(
+                    "A `key` must be provided to show where flow `.py` file is stored in GCS or "
+                    "provide a `local_script_path` pointing to a local script that contains the "
+                    "flow."
+                )
             return self
 
         for flow_name, flow in self._flows.items():
@@ -182,5 +181,4 @@ class GCS(Storage):
     def _gcs_client(self):  # type: ignore
         from prefect.utilities.gcp import get_storage_client
 
-        client = get_storage_client(project=self.project)
-        return client
+        return get_storage_client(project=self.project)

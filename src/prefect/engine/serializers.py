@@ -203,7 +203,7 @@ class PandasSerializer(Serializer):
             serialization_method(string_buffer, **self.serialize_kwargs)
             return string_buffer.getvalue().encode()
 
-    def deserialize(self, value: bytes) -> "pd.DataFrame":  # noqa: F821
+    def deserialize(self, value: bytes) -> "pd.DataFrame":    # noqa: F821
         """
         Deserialize an object to a Pandas DataFrame
 
@@ -215,8 +215,7 @@ class PandasSerializer(Serializer):
         """
         deserialization_method = self._get_deserialize_method()
         buffer = io.BytesIO(value)
-        deserialized_data = deserialization_method(buffer, **self.deserialize_kwargs)
-        return deserialized_data
+        return deserialization_method(buffer, **self.deserialize_kwargs)
 
     def __eq__(self, other: Any) -> bool:
         if type(self) == type(other):

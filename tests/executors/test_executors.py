@@ -195,7 +195,7 @@ class TestLocalDaskExecutor:
                 signal.pthread_kill(main_thread, signal.SIGINT)
 
         def long_task():
-            for i in range(50):
+            for _ in range(50):
                 time.sleep(0.1)
 
         e = LocalDaskExecutor(scheduler)
@@ -474,8 +474,8 @@ class TestDaskExecutor:
                 while len(client.scheduler_info()["workers"]) > 1:
                     time.sleep(0.1)
 
-        assert any("Worker %s added" == rec.msg for rec in caplog.records)
-        assert any("Worker %s removed" == rec.msg for rec in caplog.records)
+        assert any(rec.msg == "Worker %s added" for rec in caplog.records)
+        assert any(rec.msg == "Worker %s removed" for rec in caplog.records)
 
     @pytest.mark.parametrize("kind", ["external", "inproc"])
     @pytest.mark.flaky

@@ -26,11 +26,7 @@ class AWSSecretsManager(SecretBase):
     def __init__(self, secret: str = None, boto_kwargs: dict = None, **kwargs):
         self.secret = secret
 
-        if boto_kwargs is None:
-            self.boto_kwargs = {}
-        else:
-            self.boto_kwargs = boto_kwargs
-
+        self.boto_kwargs = {} if boto_kwargs is None else boto_kwargs
         super().__init__(**kwargs)
 
     @defaults_from_attrs("secret")
@@ -59,6 +55,4 @@ class AWSSecretsManager(SecretBase):
 
         secret_string = secrets_client.get_secret_value(SecretId=secret)["SecretString"]
 
-        secret_dict = json.loads(secret_string)
-
-        return secret_dict
+        return json.loads(secret_string)

@@ -63,25 +63,21 @@ class ErrorTask(Task):
 class RaiseFailTask(Task):
     def run(self):
         raise prefect.engine.signals.FAIL("custom-fail-message")
-        raise ValueError("custom-error-message")  # pylint: disable=W0101
 
 
 class RaiseSkipTask(Task):
     def run(self):
         raise prefect.engine.signals.SKIP()
-        raise ValueError()  # pylint: disable=W0101
 
 
 class RaiseSuccessTask(Task):
     def run(self):
         raise prefect.engine.signals.SUCCESS()
-        raise ValueError()  # pylint: disable=W0101
 
 
 class RaiseRetryTask(Task):
     def run(self):
         raise prefect.engine.signals.RETRY()
-        raise ValueError()  # pylint: disable=W0101
 
 
 class AddTask(Task):
@@ -2145,8 +2141,7 @@ def test_skips_arent_checkpointed(checkpoint):
 def test_task_runner_provides_logger():
     @prefect.task()
     def my_task():
-        logger = prefect.context.get("logger")
-        return logger
+        return prefect.context.get("logger")
 
     state = TaskRunner(my_task).run()
     assert state.is_successful()

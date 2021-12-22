@@ -314,8 +314,7 @@ class TaskRunView:
             # Erroring on an empty result is handled by `_query_for_task_runs`
             return {}
 
-        task_run = task_runs[0]
-        return task_run
+        return task_runs[0]
 
     @staticmethod
     def _query_for_task_runs(

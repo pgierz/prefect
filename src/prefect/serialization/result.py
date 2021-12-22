@@ -70,8 +70,7 @@ class LocalResultSchema(ObjectSchema):
     @post_load
     def create_object(self, data: dict, **kwargs: Any) -> results.LocalResult:
         data["validate_dir"] = False
-        base_obj = super().create_object(data)
-        return base_obj
+        return super().create_object(data)
 
 
 class PrefectResultSchema(ObjectSchema):
@@ -102,8 +101,7 @@ class SecretResultSchema(ObjectSchema):
     @post_load
     def create_object(self, data: dict, **kwargs: Any) -> results.SecretResult:
         data["secret_task"] = SecretBase()
-        base_obj = super().create_object(data)
-        return base_obj
+        return super().create_object(data)
 
 
 class StateResultSchema(OneOfSchema):

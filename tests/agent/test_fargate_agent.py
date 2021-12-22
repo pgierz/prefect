@@ -47,7 +47,7 @@ def test_fargate_agent_config_options_default(monkeypatch, cloud_api):
 
     agent = FargateAgent()
     assert agent
-    assert agent.agent_config_id == None
+    assert agent.agent_config_id is None
     assert agent.labels == []
     assert agent.name == "agent"
     assert agent.task_definition_kwargs == {}
@@ -83,10 +83,10 @@ def test_fargate_agent_config_options(monkeypatch, cloud_api):
         assert agent.boto3_client
 
         assert boto3_client.call_args[0][0] == "ecs"
-        assert boto3_client.call_args[1]["aws_access_key_id"] == None
-        assert boto3_client.call_args[1]["aws_secret_access_key"] == None
-        assert boto3_client.call_args[1]["aws_session_token"] == None
-        assert boto3_client.call_args[1]["region_name"] == None
+        assert boto3_client.call_args[1]["aws_access_key_id"] is None
+        assert boto3_client.call_args[1]["aws_secret_access_key"] is None
+        assert boto3_client.call_args[1]["aws_session_token"] is None
+        assert boto3_client.call_args[1]["region_name"] is None
 
         assert botocore_config.called
         assert botocore_config.call_args == {}

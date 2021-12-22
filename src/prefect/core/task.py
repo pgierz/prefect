@@ -452,9 +452,10 @@ class Task(metaclass=TaskMetaclass):
         # if new task creations are being tracked, add this task
         # this makes it possible to give guidance to users that forget
         # to add tasks to a flow
-        if "_unused_task_tracker" in prefect.context:
-            if not isinstance(self, prefect.tasks.core.constants.Constant):
-                prefect.context._unused_task_tracker.add(self)
+        if "_unused_task_tracker" in prefect.context and not isinstance(
+            self, prefect.tasks.core.constants.Constant
+        ):
+            prefect.context._unused_task_tracker.add(self)
 
     def __repr__(self) -> str:
         return "<Task: {self.name}>".format(self=self)

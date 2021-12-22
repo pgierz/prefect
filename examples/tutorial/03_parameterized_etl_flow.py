@@ -20,9 +20,7 @@ def extract_live_data(airport, radius, ref_data):
         area = aclib.bounding_box(airport_position, radius)
 
     print("fetching live aircraft data...")
-    raw_aircraft_data = aclib.fetch_live_aircraft_data(area=area)
-
-    return raw_aircraft_data
+    return aclib.fetch_live_aircraft_data(area=area)
 
 
 @task

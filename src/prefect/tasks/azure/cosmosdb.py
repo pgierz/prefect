@@ -95,11 +95,9 @@ class CosmosDBCreateItem(Task):
             url_connection=url, auth=auth_dict
         )
 
-        return_item = client.CreateItem(
+        return client.CreateItem(
             database_or_container_link, item, options=options
         )
-
-        return return_item
 
 
 class CosmosDBReadItems(Task):
@@ -198,14 +196,12 @@ class CosmosDBReadItems(Task):
         trimmed_link = link.strip("/")
         split_link = trimmed_link.split("/")
 
-        if (
+        return (
             len(split_link) == 6
             and split_link[0] == "dbs"
             and split_link[2] == "colls"
             and split_link[4] == "docs"
-        ):
-            return True
-        return False
+        )
 
 
 class CosmosDBQueryItems(Task):

@@ -621,9 +621,8 @@ def test_task_runner_performs_retries_for_short_delays(client):
     def noop():
         if global_list:
             return
-        else:
-            global_list.append(0)
-            raise ValueError("oops")
+        global_list.append(0)
+        raise ValueError("oops")
 
     client.get_task_run_info.side_effect = [
         MagicMock(version=i, state=Pending()) for i in range(4, 6)

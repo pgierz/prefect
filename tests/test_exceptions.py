@@ -55,7 +55,7 @@ def test_new_exceptions_can_be_caught_by_old(old_err, new_err):
     ],
 )
 def test_old_exceptions_warn_on_creation(err_cls):
-    with pytest.warns(UserWarning, match=f"prefect.utilities.exceptions"):
+    with pytest.warns(UserWarning, match='prefect.utilities.exceptions'):
         err_cls()
 
 

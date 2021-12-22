@@ -174,10 +174,8 @@ class TestCreateFlow:
 
         assert res.auto_generated is False
         assert all(
-            [
-                t.auto_generated is True
-                for t in f.get_tasks(task_type=prefect.tasks.core.constants.Constant)
-            ]
+            t.auto_generated is True
+            for t in f.get_tasks(task_type=prefect.tasks.core.constants.Constant)
         )
 
 
@@ -2033,11 +2031,10 @@ class TestFlowRunMethod:
                 super().__init__(clocks=[])
 
             def next(self, n, **kwargs):
-                if self.call_count < self.n:
-                    self.call_count += 1
-                    return [ClockEvent(pendulum.now("UTC").add(seconds=0.1))]
-                else:
+                if self.call_count >= self.n:
                     return []
+                self.call_count += 1
+                return [ClockEvent(pendulum.now("UTC").add(seconds=0.1))]
 
         return RepeatSchedule
 

@@ -321,11 +321,8 @@ def multiprocessing_safe_run_and_retrieve(
         pickled_val = cloudpickle.dumps(return_val)
         logger.debug(f"{name}: Pickling successful!")
     except Exception as exc:
-        err_msg = (
-            f"Failed to pickle result of type {type(return_val).__name__!r} with "
-            f'exception: "{type(exc).__name__}: {str(exc)}". This timeout handler "'
-            "requires your function return value to be serializable with `cloudpickle`."
-        )
+        err_msg = f'Failed to pickle result of type {type(return_val).__name__!r} with exception: "{type(exc).__name__}: {exc}". This timeout handler "requires your function return value to be serializable with `cloudpickle`.'
+
         logger.error(f"{name}: {err_msg}")
         pickled_val = cloudpickle.dumps(RuntimeError(err_msg))
 
@@ -727,12 +724,13 @@ def flatten_mapped_children(
     counts = executor.wait(
         [executor.submit(lambda c: len(c._result.value), c) for c in mapped_children]
     )
-    new_states = []
+    new_states = [
+        [
+            executor.submit(_build_flattened_state, child, i)
+            for i in range(count)
+        ]
+        for child, count in zip(mapped_children, counts)
+    ]
 
-    for child, count in zip(mapped_children, counts):
-        new_states.append(
-            [executor.submit(_build_flattened_state, child, i) for i in range(count)]
-        )
 
-    flattened_states = [i for s in new_states for i in s]
-    return flattened_states
+    return [i for s in new_states for i in s]
