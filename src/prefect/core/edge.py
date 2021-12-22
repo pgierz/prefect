@@ -100,11 +100,12 @@ class Edge:
         if upstream_task is downstream_task:
             raise ValueError("Edges can not connect a task to itself.")
 
-        if key is not None:
-            if not (isinstance(key, str) and is_valid_identifier(key)):
-                raise ValueError(
-                    'Key must be a valid identifier (received "{}")'.format(key)
-                )
+        if key is not None and not (
+            isinstance(key, str) and is_valid_identifier(key)
+        ):
+            raise ValueError(
+                'Key must be a valid identifier (received "{}")'.format(key)
+            )
 
         annotations = {}
         if isinstance(upstream_task, prefect.utilities.edges.EdgeAnnotation):

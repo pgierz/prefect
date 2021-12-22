@@ -328,7 +328,7 @@ class KubernetesJobEnvironment(Environment, _RunMixin):
         Returns:
             - dict: job spec dictionary
         """
-        job = dict()  # type: ignore
+        job = {}
 
         if self.job_spec_file:
             with open(self.job_spec_file) as job_spec_file:

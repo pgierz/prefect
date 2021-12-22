@@ -15,9 +15,7 @@ def extract_live_data():
     area_surrounding_dulles = aclib.bounding_box(dulles_airport_position, radius_km=200)
 
     print("fetching live aircraft data...")
-    raw_aircraft_data = aclib.fetch_live_aircraft_data(area=area_surrounding_dulles)
-
-    return raw_aircraft_data
+    return aclib.fetch_live_aircraft_data(area=area_surrounding_dulles)
 
 
 @task

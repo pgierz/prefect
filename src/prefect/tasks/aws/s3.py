@@ -29,11 +29,7 @@ class S3Download(Task):
     def __init__(self, bucket: str = None, boto_kwargs: dict = None, **kwargs):
         self.bucket = bucket
 
-        if boto_kwargs is None:
-            self.boto_kwargs = {}
-        else:
-            self.boto_kwargs = boto_kwargs
-
+        self.boto_kwargs = {} if boto_kwargs is None else boto_kwargs
         super().__init__(**kwargs)
 
     @defaults_from_attrs("bucket")
@@ -109,11 +105,7 @@ class S3Upload(Task):
     def __init__(self, bucket: str = None, boto_kwargs: dict = None, **kwargs):
         self.bucket = bucket
 
-        if boto_kwargs is None:
-            self.boto_kwargs = {}
-        else:
-            self.boto_kwargs = boto_kwargs
-
+        self.boto_kwargs = {} if boto_kwargs is None else boto_kwargs
         super().__init__(**kwargs)
 
     @defaults_from_attrs("bucket")
@@ -262,7 +254,7 @@ class S3List(Task):
             )
 
         files = []
-        for page in filtered_results if filtered_results else results:
+        for page in filtered_results or results:
             files.extend(obj["Key"] for obj in page.get("Contents", []))
 
         return files

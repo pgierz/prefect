@@ -10,15 +10,16 @@ from prefect.engine.result import Result, NoResult
 from prefect.serialization.state import StateSchema
 
 all_states = sorted(
-    set(
+    {
         cls
         for cls in state.__dict__.values()
         if isinstance(cls, type)
         and issubclass(cls, state.State)
         and cls not in (state.State, state._MetaState)
-    ),
+    },
     key=lambda c: c.__name__,
 )
+
 
 from marshmallow import Schema
 
@@ -41,7 +42,7 @@ def complex_states():
     )
     running_tags = state.Running()
     running_tags.context = dict(tags=["1", "2", "3"])
-    test_states = [
+    return [
         state.Looped(loop_count=45),
         state.Retrying(start_time=utc_dt, run_count=3),
         state.Retrying(start_time=naive_dt, run_count=3),
@@ -58,7 +59,6 @@ def complex_states():
         cached_state,
         cached_state_naive,
     ]
-    return test_states
 
 
 def test_all_states_have_serialization_schemas_in_stateschema():
@@ -66,7 +66,7 @@ def test_all_states_have_serialization_schemas_in_stateschema():
     Tests that all State subclasses in prefect.engine.states have corresponding schemas
     in prefect.serialization.state
     """
-    assert set(s.__name__ for s in all_states) == set(StateSchema.type_schemas.keys())
+    assert {s.__name__ for s in all_states} == set(StateSchema.type_schemas.keys())
 
 
 def test_all_states_have_deserialization_schemas_in_stateschema():
@@ -75,9 +75,9 @@ def test_all_states_have_deserialization_schemas_in_stateschema():
     in prefect.serialization.state with that state assigned as the object class
     so it will be recreated at deserialization
     """
-    assert set(all_states) == set(
+    assert set(all_states) == {
         s.Meta.object_class for s in StateSchema.type_schemas.values()
-    )
+    }
 
 
 @pytest.mark.parametrize("cls", [s for s in all_states if s is not state.Mapped])

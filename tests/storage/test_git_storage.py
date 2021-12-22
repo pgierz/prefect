@@ -131,8 +131,8 @@ def test_serialize_git_storage():
     assert serialized_storage["git_token_username"] == "my_user"
     assert serialized_storage["git_clone_url_secret_name"] == "MY_GIT_URL"
     assert serialized_storage["branch_name"] == "my_branch"
-    assert serialized_storage["tag"] == None
-    assert serialized_storage["commit"] == None
+    assert serialized_storage["tag"] is None
+    assert serialized_storage["commit"] is None
     assert serialized_storage["clone_depth"] == 1
     assert serialized_storage["use_ssh"] == False
     assert serialized_storage["format_access_token"] == True

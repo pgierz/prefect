@@ -33,9 +33,9 @@ def add_airline_info(vector: Dict[str, Any], airlines: Dict[str, str]) -> None:
     callsign = vector["callsign"]
 
     if callsign:
-        if callsign[:3] in airlines.keys():
+        if callsign[:3] in airlines:
             airline = callsign[:3]
-        elif callsign[:2] in airlines.keys():
+        elif callsign[:2] in airlines:
             airline = callsign[:2]
 
     vector["airline"] = airline

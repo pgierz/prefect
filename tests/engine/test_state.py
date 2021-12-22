@@ -36,13 +36,13 @@ from prefect.engine.state import (
 from prefect.serialization.state import StateSchema
 
 all_states = sorted(
-    set(
+    {
         cls
         for cls in prefect.engine.state.__dict__.values()
         if isinstance(cls, type)
         and issubclass(cls, prefect.engine.state.State)
-        and not cls is _MetaState
-    ),
+        and cls is not _MetaState
+    },
     key=lambda c: c.__name__,
 )
 
@@ -174,7 +174,7 @@ def test_only_scheduled_and_queued_states_have_start_times(cls):
     """
     state = cls()
     if hasattr(state, "start_time"):
-        assert isinstance(state, Scheduled) or isinstance(state, Queued)
+        assert isinstance(state, (Scheduled, Queued))
         if isinstance(state, Scheduled):
             assert state.is_scheduled()
     else:
@@ -274,11 +274,11 @@ def test_state_equality():
     assert State() == State()
     assert Success() == Success()
     assert Success(result=1) == Success(result=1)
-    assert not State() == Success()
-    assert not Success(result=1) == Success(result=2)
+    assert State() != Success()
+    assert Success(result=1) != Success(result=2)
     assert Pending(cached_inputs=dict(x=1)) == Pending(cached_inputs=dict(x=1))
-    assert not Pending(cached_inputs=dict(x=1)) == Pending(cached_inputs=dict(x=2))
-    assert not Pending(cached_inputs=dict(x=1)) == Pending(cached_inputs=dict(y=1))
+    assert Pending(cached_inputs=dict(x=1)) != Pending(cached_inputs=dict(x=2))
+    assert Pending(cached_inputs=dict(x=1)) != Pending(cached_inputs=dict(y=1))
 
 
 def test_state_equality_ignores_context():
@@ -651,11 +651,7 @@ def test_meta_states_dont_nest():
     state = Queued(state=Pending())
 
     for i in range(300):
-        if i % 2:
-            state = Queued(state=state)
-        else:
-            state = Submitted(state=state)
-
+        state = Queued(state=state) if i % 2 else Submitted(state=state)
     assert state.state.is_pending()
     assert not state.state.is_meta_state()
 

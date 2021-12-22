@@ -179,13 +179,12 @@ class S3(Storage):
                             )
                         )
                         raise err
-            else:
-                if not self.key:
-                    raise ValueError(
-                        "A `key` must be provided to show where flow `.py` file is stored in S3 or "
-                        "provide a `local_script_path` pointing to a local script that contains the "
-                        "flow."
-                    )
+            elif not self.key:
+                raise ValueError(
+                    "A `key` must be provided to show where flow `.py` file is stored in S3 or "
+                    "provide a `local_script_path` pointing to a local script that contains the "
+                    "flow."
+                )
             return self
 
         for flow_name, flow in self._flows.items():

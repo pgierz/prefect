@@ -116,10 +116,7 @@ class State:
 
     @result.setter
     def result(self, value: Any) -> None:
-        if isinstance(value, Result):
-            self._result = value
-        else:
-            self._result = Result(value=value)
+        self._result = value if isinstance(value, Result) else Result(value=value)
 
     def load_result(self, result: Result = None) -> "State":
         """
@@ -387,8 +384,7 @@ class State:
         """
         from prefect.serialization.state import StateSchema
 
-        state = StateSchema().load(json_blob)
-        return state
+        return StateSchema().load(json_blob)
 
     def serialize(self) -> dict:
         """
@@ -399,8 +395,7 @@ class State:
         """
         from prefect.serialization.state import StateSchema
 
-        json_blob = StateSchema().dump(self)
-        return json_blob
+        return StateSchema().dump(self)
 
 
 # -------------------------------------------------------------------

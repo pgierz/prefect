@@ -452,22 +452,16 @@ class TaskRunner(Runner):
 
         # we can't map if there are no success states with iterables upstream
         if upstream_states and not any(
-            [
-                edge.mapped and state.is_successful()
-                for edge, state in upstream_states.items()
-            ]
+            edge.mapped and state.is_successful()
+            for edge, state in upstream_states.items()
         ):
             new_state = Failed("No upstream states can be mapped over.")  # type: State
-            raise ENDRUN(new_state)
         elif not all(
-            [
-                hasattr(state.result, "__getitem__")
-                for edge, state in upstream_states.items()
-                if state.is_successful() and not state.is_mapped() and edge.mapped
-            ]
+            hasattr(state.result, "__getitem__")
+            for edge, state in upstream_states.items()
+            if state.is_successful() and not state.is_mapped() and edge.mapped
         ):
             new_state = Failed("At least one upstream state has an unmappable result.")
-            raise ENDRUN(new_state)
         else:
             # compute and set n_map_states
             n_map_states = min(
@@ -486,7 +480,8 @@ class TaskRunner(Runner):
             new_state = Mapped(
                 "Ready to proceed with mapping.", n_map_states=n_map_states
             )
-            raise ENDRUN(new_state)
+
+        raise ENDRUN(new_state)
 
     @call_state_handlers
     def check_task_trigger(
@@ -657,14 +652,11 @@ class TaskRunner(Runner):
             - Dict[str, Result]: the task inputs
 
         """
-        task_inputs = {}  # type: Dict[str, Result]
-
-        for edge, upstream_state in upstream_states.items():
-            # construct task inputs
-            if edge.key is not None:
-                task_inputs[edge.key] = upstream_state._result  # type: ignore
-
-        return task_inputs
+        return {
+            edge.key: upstream_state._result
+            for edge, upstream_state in upstream_states.items()
+            if edge.key is not None
+        }
 
     def load_results(
         self, state: State, upstream_states: Dict[Edge, State]
@@ -742,7 +734,7 @@ class TaskRunner(Runner):
             if result.exists(target, **formatting_kwargs):  # type: ignore
                 known_location = target.format(**formatting_kwargs)  # type: ignore
                 new_res = result.read(known_location)
-                cached_state = Cached(
+                return Cached(
                     result=new_res,
                     hashed_inputs={
                         key: tokenize(val.value) for key, val in inputs.items()
@@ -751,7 +743,6 @@ class TaskRunner(Runner):
                     cached_parameters=formatting_kwargs.get("parameters"),
                     message=f"Result found at task target {known_location}",
                 )
-                return cached_state
 
         return state
 
@@ -828,8 +819,7 @@ class TaskRunner(Runner):
             )
             raise ENDRUN(state)
 
-        new_state = Running(message="Starting task run.")
-        return new_state
+        return Running(message="Starting task run.")
 
     @call_state_handlers
     def get_task_run_state(self, state: State, inputs: Dict[str, Result]) -> State:
@@ -964,14 +954,13 @@ class TaskRunner(Runner):
             and self.task.cache_for is not None
         ):
             expiration = pendulum.now("utc") + self.task.cache_for
-            cached_state = Cached(
+            return Cached(
                 result=state._result,
                 hashed_inputs={key: tokenize(val.value) for key, val in inputs.items()},
                 cached_result_expiration=expiration,
                 cached_parameters=prefect.context.get("parameters"),
                 message=state.message,
             )
-            return cached_state
 
         return state
 
@@ -1024,14 +1013,13 @@ class TaskRunner(Runner):
                 msg = "Retrying Task (after attempt {n} of {m})".format(
                     n=run_count, m=self.task.max_retries + 1
                 )
-                retry_state = Retrying(
+                return Retrying(
                     start_time=start_time,
                     context=state_context,
                     message=msg,
                     run_count=run_count,
                     result=loop_result,
                 )
-                return retry_state
 
         return state
 

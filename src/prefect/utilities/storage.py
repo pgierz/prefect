@@ -39,15 +39,14 @@ def get_flow_image(flow: "Flow") -> str:
         and environment.metadata.get("image")
     ):
         return environment.metadata.get("image", "")
-    else:
-        storage = flow.storage
-        if not isinstance(storage, prefect.storage.Docker):
-            raise ValueError(
-                f"Storage for flow run {flow.name} is not of type Docker and "
-                f"environment has no `image` attribute in the metadata field."
-            )
+    storage = flow.storage
+    if not isinstance(storage, prefect.storage.Docker):
+        raise ValueError(
+            f"Storage for flow run {flow.name} is not of type Docker and "
+            f"environment has no `image` attribute in the metadata field."
+        )
 
-        return storage.name
+    return storage.name
 
 
 def extract_flow_from_file(
@@ -89,19 +88,16 @@ def extract_flow_from_file(
 
     # Grab flow name from values loaded via exec
     flows = {o.name: o for o in exec_vals.values() if isinstance(o, prefect.Flow)}
-    if flows:
-        if flow_name:
-            if flow_name in flows:
-                return flows[flow_name]
-            else:
-                flows_list = "\n".join("- %r" % n for n in sorted(flows))
-                raise ValueError(
-                    f"Flow {flow_name!r} not found in file. Found flows:\n{flows_list}"
-                )
-        else:
-            return list(flows.values())[0]
-    else:
+    if not flows:
         raise ValueError("No flows found in file.")
+    if not flow_name:
+        return list(flows.values())[0]
+    if flow_name in flows:
+        return flows[flow_name]
+    flows_list = "\n".join("- %r" % n for n in sorted(flows))
+    raise ValueError(
+        f"Flow {flow_name!r} not found in file. Found flows:\n{flows_list}"
+    )
 
 
 def extract_flow_from_module(module_str: str, flow_name: str = None) -> "Flow":

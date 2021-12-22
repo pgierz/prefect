@@ -18,10 +18,9 @@ def jira_message_formatter(
     tracked_obj: "Union[Flow, Task]", state: "prefect.engine.state.State"
 ) -> str:
     time = datetime.utcnow()
-    msg = "Message from Prefect: {0} entered a {1} state at {2}".format(
+    return "Message from Prefect: {0} entered a {1} state at {2}".format(
         tracked_obj.name, type(state).__name__, time
     )
-    return msg
 
 
 @curry
@@ -124,7 +123,7 @@ def jira_notifier(
         return new_state
 
     if only_states and not any(
-        [isinstance(new_state, included) for included in only_states]
+        isinstance(new_state, included) for included in only_states
     ):
         return new_state
 

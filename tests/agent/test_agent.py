@@ -27,7 +27,7 @@ def test_multiple_agent_init_doesnt_duplicate_logs(cloud_api):
 def test_agent_config_options(cloud_api):
     with set_temporary_config({"cloud.agent.auth_token": "TEST_TOKEN"}):
         agent = Agent()
-        assert agent.agent_config_id == None
+        assert agent.agent_config_id is None
         assert agent.labels == []
         assert agent.env_vars == dict()
         assert agent.max_polls is None
@@ -585,7 +585,7 @@ def test_agent_api_health_check(cloud_api):
     agent._start_agent_api_server()
 
     # May take a sec for the api server to startup
-    for attempt in range(5):
+    for _ in range(5):
         try:
             resp = requests.get(f"http://127.0.0.1:{port}/api/health")
             break
@@ -607,7 +607,7 @@ def test_agent_poke_api(monkeypatch, runner_token, cloud_api):
 
     def _poke_agent(agent_address):
         # May take a sec for the api server to startup
-        for attempt in range(5):
+        for _ in range(5):
             try:
                 resp = requests.get(f"{agent_address}/api/health")
                 break

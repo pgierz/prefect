@@ -62,8 +62,7 @@ class LocalResult(Result):
     @property
     def default_location(self) -> str:
         fname = "prefect-result-" + slugify(pendulum.now("utc").isoformat())
-        location = os.path.join(self.dir, fname)
-        return location
+        return os.path.join(self.dir, fname)
 
     def read(self, location: str) -> Result:
         """

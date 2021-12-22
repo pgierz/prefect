@@ -562,9 +562,7 @@ def test_populate_custom_yaml_specs_with_logging_vars(log_flag):
 
     with open(path.join(file_path, "job.yaml")) as job_file:
         job = yaml.safe_load(job_file)
-        job["spec"]["template"]["spec"]["containers"][0]["env"] = []
-        job["spec"]["template"]["spec"]["containers"][0]["env"].extend(log_vars)
-
+        job["spec"]["template"]["spec"]["containers"][0]["env"] = list(log_vars)
     with set_temporary_config(
         {
             "cloud.graphql": "gql_test",
@@ -592,9 +590,7 @@ def test_populate_custom_yaml_specs_with_logging_vars(log_flag):
     # worker
     with open(path.join(file_path, "worker_pod.yaml")) as pod_file:
         pod = yaml.safe_load(pod_file)
-        pod["spec"]["containers"][0]["env"] = []
-        pod["spec"]["containers"][0]["env"].extend(log_vars)
-
+        pod["spec"]["containers"][0]["env"] = list(log_vars)
     with set_temporary_config(
         {
             "cloud.graphql": "gql_test",

@@ -58,9 +58,10 @@ def cloudpickle_deserialization_check(flow_file_paths: list):
 def import_flow_from_script_check(flow_file_paths: list):
     from prefect.utilities.storage import extract_flow_from_file
 
-    flows = []
-    for flow_file_path in flow_file_paths:
-        flows.append(extract_flow_from_file(file_path=flow_file_path))
+    flows = [
+        extract_flow_from_file(file_path=flow_file_path)
+        for flow_file_path in flow_file_paths
+    ]
 
     print("Flow import from script check: OK")
     return flows
@@ -100,11 +101,9 @@ def result_check(flows: list, quiet=False):
                     stacklevel=2,
                 )
             if any(
-                [
-                    e.upstream_task.result is None
-                    for e in upstream_edges[task]
-                    if e.key is not None
-                ]
+                e.upstream_task.result is None
+                for e in upstream_edges[task]
+                if e.key is not None
             ):
                 warnings.warn(
                     f"Task {task} has cache settings but some upstream dependencies do not have "

@@ -165,8 +165,7 @@ def slack_message_formatter(
         if url:
             notification_payload.update(title_link=url)
 
-    data = {"attachments": [notification_payload]}
-    return data
+    return {"attachments": [notification_payload]}
 
 
 @curry
@@ -223,7 +222,7 @@ def gmail_notifier(
         return new_state
 
     if only_states and not any(
-        [isinstance(new_state, included) for included in only_states]
+        isinstance(new_state, included) for included in only_states
     ):
         return new_state
 
@@ -305,7 +304,7 @@ def slack_notifier(
         return new_state
 
     if only_states and not any(
-        [isinstance(new_state, included) for included in only_states]
+        isinstance(new_state, included) for included in only_states
     ):
         return new_state
 

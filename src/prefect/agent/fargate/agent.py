@@ -372,7 +372,7 @@ class FargateAgent(Agent):
                         item = literal_eval(item)
                     except (ValueError, SyntaxError):
                         pass
-                task_definition_kwargs.update({key: item})
+                task_definition_kwargs[key] = item
                 self.logger.debug("{} = {}".format(key, item))
 
         # Special case for int provided cpu and memory
@@ -388,7 +388,7 @@ class FargateAgent(Agent):
                     item = literal_eval(item)
                 except (ValueError, SyntaxError):
                     pass
-                task_run_kwargs.update({key: item})
+                task_run_kwargs[key] = item
                 self.logger.debug("{} = {}".format(key, item))
 
         container_definitions_kwargs = {}
@@ -410,7 +410,7 @@ class FargateAgent(Agent):
                     item = literal_eval(item)
                 except (ValueError, SyntaxError):
                     pass
-                container_definitions_kwargs.update({key: item})
+                container_definitions_kwargs[key] = item
                 self.logger.debug("{} = {}".format(key, item))
 
         # Check environment if keys were not provided
@@ -425,8 +425,7 @@ class FargateAgent(Agent):
                             def_env_value = literal_eval(def_env_value)  # type: ignore
                         except (ValueError, SyntaxError):
                             pass
-                    task_definition_kwargs.update({key: def_env_value})
-
+                    task_definition_kwargs[key] = def_env_value
             for key in run_kwarg_list:
                 if not task_run_kwargs.get(key) and os.getenv(key):
                     self.logger.debug("{} from environment variable".format(key))
@@ -436,8 +435,7 @@ class FargateAgent(Agent):
                         run_env_value = literal_eval(run_env_value)  # type: ignore
                     except (ValueError, SyntaxError):
                         pass
-                    task_run_kwargs.update({key: run_env_value})
-
+                    task_run_kwargs[key] = run_env_value
             for key in container_definitions_kwarg_list:
                 if not container_definitions_kwargs.get(key) and os.getenv(
                     "containerDefinitions_{}".format(key)
@@ -451,8 +449,7 @@ class FargateAgent(Agent):
                         cd_env_value = literal_eval(cd_env_value)  # type: ignore
                     except (ValueError, SyntaxError):
                         pass
-                    container_definitions_kwargs.update({key: cd_env_value})
-
+                    container_definitions_kwargs[key] = cd_env_value
         return task_definition_kwargs, task_run_kwargs, container_definitions_kwargs
 
     def deploy_flow(self, flow_run: GraphQLResult) -> str:

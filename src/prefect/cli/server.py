@@ -264,11 +264,7 @@ def setup_compose_env(
 
     # Pull current version information
     base_version = prefect.__version__.split("+")
-    if len(base_version) > 1:
-        default_tag = "master"
-    else:
-        default_tag = f"core-{base_version[0]}"
-
+    default_tag = "master" if len(base_version) > 1 else f"core-{base_version[0]}"
     db_connection_url = (
         config.server.database.connection_url if postgres_url is None else postgres_url
     )
@@ -630,12 +626,12 @@ def start(
         proc = subprocess.Popen(cmd, cwd=compose_dir_path, env=env)
         started = False
         with prefect.utilities.configuration.set_temporary_config(
-            {
-                "cloud.api": "http://localhost:4200",
-                "cloud.graphql": "http://localhost:4200/graphql",
-                "backend": "server",
-            }
-        ):
+                    {
+                        "cloud.api": "http://localhost:4200",
+                        "cloud.graphql": "http://localhost:4200/graphql",
+                        "backend": "server",
+                    }
+                ):
             while not started:
                 try:
                     # Get a client with the correct server port
@@ -650,7 +646,6 @@ def start(
                     print(ascii_welcome(ui_port=str(ui_port)))
                 except Exception:
                     time.sleep(0.5)
-                    pass
             if detach:
                 return
             while True:
@@ -685,13 +680,11 @@ def ascii_welcome(ui_port="8080"):
 
     """
 
-    message = f"""
+    return f"""
                                             {click.style('WELCOME TO', fg='blue', bold=True)}
   {click.style(title, bold=True)}
    Visit {ui_url} to get started, or check out the docs at {docs_url}
     """
-
-    return message
 
 
 @server.command(hidden=True)

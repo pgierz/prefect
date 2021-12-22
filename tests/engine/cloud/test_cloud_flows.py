@@ -208,11 +208,10 @@ class MockedCloudClient(MagicMock):
         self.call_count[flow_run_id] += 1
 
         fr = self.flow_runs[flow_run_id]
-        if fr.version == version or version is None:
-            fr.state = state
-            fr.version += 1
-        else:
+        if fr.version != version and version is not None:
             raise ValueError("Invalid flow run update")
+        fr.state = state
+        fr.version += 1
         return state
 
     def set_task_run_state(self, task_run_id, version, state, **kwargs):
@@ -220,11 +219,10 @@ class MockedCloudClient(MagicMock):
         self.call_count[task_run_id] += 1
 
         tr = self.task_runs[task_run_id]
-        if tr.version == version or version is None:
-            tr.state = state
-            tr.version += 1
-        else:
+        if tr.version != version and version is not None:
             raise ValueError("Invalid task run update")
+        tr.state = state
+        tr.version += 1
         return state
 
 

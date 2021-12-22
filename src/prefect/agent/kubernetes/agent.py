@@ -209,10 +209,10 @@ class KubernetesAgent(Agent):
                             if pod.status.container_statuses:
                                 for container_status in pod.status.container_statuses:
                                     waiting = container_status.state.waiting
-                                    if waiting and (
-                                        waiting.reason == "ErrImagePull"
-                                        or waiting.reason == "ImagePullBackOff"
-                                    ):
+                                    if waiting and waiting.reason in [
+                                        "ErrImagePull",
+                                        "ImagePullBackOff",
+                                    ]:
                                         self.logger.debug(
                                             f"Failing flow run {flow_run_id} due to pod {waiting.reason}"
                                         )
@@ -908,8 +908,7 @@ class KubernetesAgent(Agent):
                     document["metadata"]["namespace"] = namespace
                     rbac_yaml.append(document)
 
-        output_yaml = [deployment]
-        output_yaml.extend(rbac_yaml)
+        output_yaml = [deployment, *rbac_yaml]
         return yaml.safe_dump_all(output_yaml, explicit_start=True)
 
 

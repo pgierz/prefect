@@ -286,8 +286,9 @@ class LocalAgent(Agent):
         ) as conf_file:
             conf = conf_file.read()
 
-        add_opts = ""
-        add_opts += "-f " if show_flow_logs else ""
+
+        add_opts = "" + ("-f " if show_flow_logs else "")
+
         add_opts += " ".join("-l {label} ".format(label=label) for label in labels)
         add_opts += " ".join(
             "-e {k}={v} ".format(k=k, v=v) for k, v in env_vars.items()

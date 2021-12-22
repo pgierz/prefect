@@ -79,12 +79,11 @@ def try_error_done(
     except Exception as exc:
         echo(" Error", fg="red")
 
-        if traceback and not isinstance(exc, TerminalError):
-            log_exception(exc, indent=2)
-            raise TerminalError
-        else:
+        if not traceback or isinstance(exc, TerminalError):
             raise TerminalError(f"{type(exc).__name__}: {exc}")
 
+        log_exception(exc, indent=2)
+        raise TerminalError
     else:
         if not skip_done:
             echo(" Done", fg="green")
@@ -126,8 +125,7 @@ def load_flows_from_script(path: str) -> "List[prefect.Flow]":
     finally:
         sys.path[:] = orig_sys_path
 
-    flows = [f for f in namespace.values() if isinstance(f, prefect.Flow)]
-    return flows
+    return [f for f in namespace.values() if isinstance(f, prefect.Flow)]
 
 
 def load_flows_from_module(name: str) -> "List[prefect.Flow]":
@@ -347,7 +345,6 @@ See `prefect run --help` for more details on the options.
 
 @click.group(invoke_without_command=True, epilog=RUN_EPILOG)
 @click.pass_context
-# Flow lookup settings -----------------------------------------------------------------
 @click.option(
     "--id",
     "-i",
@@ -379,7 +376,6 @@ See `prefect run --help` for more details on the options.
         "source contains multiple flows, this must be provided. "
     ),
 )
-# Flow run settings --------------------------------------------------------------------
 @click.option(
     "--label",
     "labels",
@@ -459,7 +455,6 @@ See `prefect run --help` for more details on the options.
     ),
     is_flag=True,
 )
-# Display settings ---------------------------------------------------------------------
 @click.option(
     "--quiet",
     "-q",
@@ -729,8 +724,6 @@ def run(
                 execute_flow_run_in_subprocess(flow_run_id)
         except KeyboardInterrupt:
             quiet_echo("Keyboard interrupt detected! Aborting...", fg="yellow")
-            pass
-
     elif watch:
         try:
             quiet_echo("Watching flow run execution...")
@@ -976,11 +969,7 @@ def run_flow(
         with open(parameters_file) as params_file:
             file_params = json.load(params_file)
 
-    # Load parameters from string if provided
-    string_params = {}
-    if parameters_string:
-        string_params = json.loads(parameters_string)
-
+    string_params = json.loads(parameters_string) if parameters_string else {}
     if context:
         context = json.loads(context)
     flow_run_id = client.create_flow_run(
@@ -1018,7 +1007,7 @@ def run_flow(
             for state_index in result.data.flow_run_by_pk.states:
                 state = state_index.state
                 if state not in current_states:
-                    if state != "Success" and state != "Failed":
+                    if state not in ["Success", "Failed"]:
                         click.echo("{} -> ".format(state), nl=False)
                     else:
                         click.echo(state)
@@ -1087,7 +1076,7 @@ def run_flow(
                     tabulate(output, tablefmt="plain", numalign="left", stralign="left")
                 )
 
-            if new_run.state == "Success" or new_run.state == "Failed":
+            if new_run.state in ["Success", "Failed"]:
                 return flow_run_id
 
             time.sleep(3)

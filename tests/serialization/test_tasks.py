@@ -62,7 +62,7 @@ def test_deserialize_auto_generated_task():
     task = Task(name="hi")
     task.auto_generated = True
     deserialized = TaskSchema().load(TaskSchema().dump(task))
-    assert task.auto_generated is True
+    assert task.auto_generated
 
 
 def test_deserialize_task_subclass_is_task_but_not_task_subclass():
@@ -105,7 +105,7 @@ def test_deserializing_tasks_reuses_task_cache_to_recreate_object():
 def test_serialize_parameter():
     p = Parameter(name="p")
     ps = ParameterSchema().dump(p)
-    assert ps["default"] == None
+    assert ps["default"] is None
     assert ps["required"] is True
 
 

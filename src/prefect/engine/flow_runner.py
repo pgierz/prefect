@@ -255,8 +255,8 @@ class FlowRunner(Runner):
         if executor is None:
             # Use the executor on the flow, if configured
             executor = getattr(self.flow, "executor", None)
-            if executor is None:
-                executor = prefect.engine.get_default_executor_class()()
+        if executor is None:
+            executor = prefect.engine.get_default_executor_class()()
 
         self.logger.debug("Using executor type %s", type(executor).__name__)
 
@@ -323,14 +323,17 @@ class FlowRunner(Runner):
         Raises:
             - ENDRUN: if the flow is Scheduled with a future scheduled time
         """
-        if isinstance(state, Scheduled):
-            if state.start_time and state.start_time > pendulum.now("utc"):
-                self.logger.debug(
-                    "Flow '{name}': start_time has not been reached; ending run.".format(
-                        name=self.flow.name
-                    )
+        if (
+            isinstance(state, Scheduled)
+            and state.start_time
+            and state.start_time > pendulum.now("utc")
+        ):
+            self.logger.debug(
+                "Flow '{name}': start_time has not been reached; ending run.".format(
+                    name=self.flow.name
                 )
-                raise ENDRUN(state)
+            )
+            raise ENDRUN(state)
         return state
 
     @call_state_handlers

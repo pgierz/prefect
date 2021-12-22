@@ -307,9 +307,7 @@ def list_tenants():
 
     output = []
     for item in tenants:
-        active = None
-        if item.id == client.tenant_id:
-            active = "*"
+        active = "*" if item.id == client.tenant_id else None
         output.append([item.name, item.slug, item.id, active])
 
     click.echo(
@@ -366,17 +364,16 @@ def switch_tenants(id, slug, default):
                 "The default tenant flag can only be used with API keys."
             )
 
-    else:  # Using an API key
-        if default:
-            # Clear the set tenant on disk
-            client.tenant_id = None
-            client.save_auth_to_disk()
-            click.secho(
-                "Tenant restored to the default tenant for your API key: "
-                f"{client._get_auth_tenant()}",
-                fg="green",
-            )
-            return
+    elif default:
+        # Clear the set tenant on disk
+        client.tenant_id = None
+        client.save_auth_to_disk()
+        click.secho(
+            "Tenant restored to the default tenant for your API key: "
+            f"{client._get_auth_tenant()}",
+            fg="green",
+        )
+        return
 
     login_success = client.login_to_tenant(tenant_slug=slug, tenant_id=id)
     if not login_success:
@@ -452,10 +449,7 @@ def list_tokens():
         click.secho("Unable to list API tokens", fg="red")
         return
 
-    tokens = []
-    for item in output.data.api_token:
-        tokens.append([item.name, item.id])
-
+    tokens = [[item.name, item.id] for item in output.data.api_token]
     click.echo(
         tabulate(
             tokens,

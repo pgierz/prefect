@@ -167,15 +167,15 @@ class FargateTaskEnvironment(Environment, _RunMixin):
             "propagateTags",
         ]
 
-        task_definition_kwargs = {}
-        for key, item in user_kwargs.items():
-            if key in _DEFINITION_KWARG_LIST:
-                task_definition_kwargs.update({key: item})
+        task_definition_kwargs = {
+            key: item
+            for key, item in user_kwargs.items()
+            if key in _DEFINITION_KWARG_LIST
+        }
 
-        task_run_kwargs = {}
-        for key, item in user_kwargs.items():
-            if key in run_kwarg_list:
-                task_run_kwargs.update({key: item})
+        task_run_kwargs = {
+            key: item for key, item in user_kwargs.items() if key in run_kwarg_list
+        }
 
         return task_definition_kwargs, task_run_kwargs
 
@@ -206,9 +206,7 @@ class FargateTaskEnvironment(Environment, _RunMixin):
 
         # create containerDefinitions if they do not exist
         if not task_definition_kwargs.get("containerDefinitions"):
-            task_definition_kwargs["containerDefinitions"] = []
-            task_definition_kwargs["containerDefinitions"].append({})
-
+            task_definition_kwargs["containerDefinitions"] = [{}]
         # set environment variables for all containers
         for definition in task_definition_kwargs["containerDefinitions"]:
             if not definition.get("environment"):

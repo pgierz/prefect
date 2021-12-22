@@ -533,7 +533,7 @@ class DaskKubernetesEnvironment(Environment):
 
         # Append logging env vars if not already present
         for var in log_vars:
-            if not any(d.get("name") == var.get("name") for d in env):
+            if all(d.get("name") != var.get("name") for d in env):
                 env.append(var)
 
         # set image
@@ -606,7 +606,7 @@ class DaskKubernetesEnvironment(Environment):
 
         # Append logging env vars if not already present
         for var in log_vars:
-            if not any(d.get("name") == var.get("name") for d in env):
+            if all(d.get("name") != var.get("name") for d in env):
                 env.append(var)
 
         # set image

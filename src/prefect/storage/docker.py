@@ -330,8 +330,8 @@ class Docker(Storage):
         # note that if the user provides a custom dockerfile, we create the temporary directory
         # within the current working directory to preserve their build context
         with tempfile.TemporaryDirectory(
-            dir="." if self.dockerfile else None
-        ) as tempdir:
+                dir="." if self.dockerfile else None
+            ) as tempdir:
             # Build the dockerfile
             if self.base_image and not self.local_image:
                 self.pull_image()
@@ -343,7 +343,7 @@ class Docker(Storage):
             # pushed
             if self.registry_url:
                 full_name = str(PurePosixPath(self.registry_url, self.image_name))
-            elif push is True:
+            elif push:
                 warnings.warn(
                     "This Docker storage object has no `registry_url`, and "
                     "will not be pushed.",
@@ -430,9 +430,9 @@ class Docker(Storage):
                 pip_installs += "{} ".format(dependency)
 
         # Write all install-time commands that should be run in the image
-        installation_commands = ""
-        for cmd in self.installation_commands:
-            installation_commands += "RUN {}\n".format(cmd)
+        installation_commands = "".join(
+            "RUN {}\n".format(cmd) for cmd in self.installation_commands
+        )
 
         # Copy user specified files into the image
         copy_files = ""
@@ -452,13 +452,12 @@ class Docker(Storage):
                             fname=full_fname, directory=directory
                         )
                     )
+                if os.path.isdir(src):
+                    shutil.copytree(
+                        src=src, dst=full_fname, symlinks=False, ignore=None
+                    )
                 else:
-                    if os.path.isdir(src):
-                        shutil.copytree(
-                            src=src, dst=full_fname, symlinks=False, ignore=None
-                        )
-                    else:
-                        shutil.copy2(src=src, dst=full_fname)
+                    shutil.copy2(src=src, dst=full_fname)
                 copy_files += "COPY {fname} {dest}\n".format(
                     fname=full_fname.replace("\\", "/") if self.dockerfile else fname,
                     dest=dest,
@@ -480,11 +479,10 @@ class Docker(Storage):
                     ),
                     dest=flow_location,
                 )
-        else:
-            if not self.path:
-                raise ValueError(
-                    "A `path` must be provided to show where flow `.py` file is stored in the image."
-                )
+        elif not self.path:
+            raise ValueError(
+                "A `path` must be provided to show where flow `.py` file is stored in the image."
+            )
 
         # Write final extra user commands that should be run in the image
         final_commands = (

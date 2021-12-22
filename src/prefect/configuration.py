@@ -60,8 +60,7 @@ def string_to_type(val: str) -> Union[bool, int, float, str]:
 
     # dicts, ints, floats, or any other literal Python syntax
     try:
-        val_as_obj = literal_eval(val)
-        return val_as_obj
+        return literal_eval(val)
     except Exception:
         pass
 
@@ -78,9 +77,7 @@ def interpolate_env_vars(env_var: str) -> Optional[Union[bool, int, float, str]]
     if not env_var or not isinstance(env_var, str):
         return env_var
 
-    counter = 0
-
-    while counter < 10:
+    for counter in range(10):
         interpolated = os.path.expanduser(os.path.expandvars(str(env_var)))
         if interpolated == env_var:
             # if a change was made, apply string-to-type casts; otherwise leave alone
@@ -91,8 +88,6 @@ def interpolate_env_vars(env_var: str) -> Optional[Union[bool, int, float, str]]
             return interpolated
         else:
             env_var = interpolated
-        counter += 1
-
     return None
 
 
@@ -203,10 +198,7 @@ def load_toml(path: str) -> dict:
     """
     Loads a config dictionary from TOML
     """
-    return {
-        key: value
-        for key, value in toml.load(cast(str, interpolate_env_vars(path))).items()
-    }
+    return dict(toml.load(cast(str, interpolate_env_vars(path))).items())
 
 
 def interpolate_config(config: dict, env_var_prefix: str = None) -> Config:

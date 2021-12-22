@@ -30,11 +30,7 @@ class StepActivate(Task):
         self.execution_name = execution_name
         self.execution_input = execution_input
 
-        if boto_kwargs is None:
-            self.boto_kwargs = {}
-        else:
-            self.boto_kwargs = boto_kwargs
-
+        self.boto_kwargs = {} if boto_kwargs is None else boto_kwargs
         super().__init__(**kwargs)
 
     def run(self, credentials: dict = None):
@@ -56,10 +52,8 @@ class StepActivate(Task):
             "stepfunctions", credentials=credentials, **self.boto_kwargs
         )
 
-        response = step_client.start_execution(
+        return step_client.start_execution(
             stateMachineArn=self.state_machine_arn,
             name=self.execution_name,
             input=self.execution_input,
         )
-
-        return response

@@ -256,14 +256,13 @@ def wait_for_flow_run(
     # Get the final view of the flow run
     flow_run = flow_run.get_latest()
 
-    if raise_final_state:
-        state_signal = signal_from_state(flow_run.state)(
-            message=f"{flow_run_id} finished in state {flow_run.state}",
-            result=flow_run,
-        )
-        raise state_signal
-    else:
+    if not raise_final_state:
         return flow_run
+    state_signal = signal_from_state(flow_run.state)(
+        message=f"{flow_run_id} finished in state {flow_run.state}",
+        result=flow_run,
+    )
+    raise state_signal
 
 
 # Legacy -------------------------------------------------------------------------------

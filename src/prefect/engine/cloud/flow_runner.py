@@ -92,9 +92,7 @@ class CloudFlowRunner(FlowRunner):
                 }
             }
             flow_run = self.client.graphql(query).data.flow_run_by_pk
-            if not flow_run.flow.settings.get("heartbeat_enabled", True):
-                return False
-            return True
+            return bool(flow_run.flow.settings.get("heartbeat_enabled", True))
         except Exception:
             self.logger.exception(
                 "Heartbeat failed for Flow '{}'".format(self.flow.name)

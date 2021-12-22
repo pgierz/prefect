@@ -88,20 +88,16 @@ class Local(Storage):
             raise ValueError("Flow is not contained in this Storage")
         flow_location = self.flows[flow_name]
 
-        # check if the path given is a file path
-        if os.path.isfile(flow_location):
-            if self.stored_as_script:
-                return extract_flow_from_file(
-                    file_path=flow_location, flow_name=flow_name
-                )
-            else:
-                with open(flow_location, "rb") as f:
-                    return flow_from_bytes_pickle(f.read())
-        # otherwise the path is given in the module format
-        else:
+        if not os.path.isfile(flow_location):
             return extract_flow_from_module(
                 module_str=flow_location, flow_name=flow_name
             )
+        if self.stored_as_script:
+            return extract_flow_from_file(
+                file_path=flow_location, flow_name=flow_name
+            )
+        with open(flow_location, "rb") as f:
+            return flow_from_bytes_pickle(f.read())
 
     def add_flow(self, flow: "Flow") -> str:
         """
@@ -130,10 +126,7 @@ class Local(Storage):
                 )
             flow_location = self.path
         else:
-            if self.path:
-                flow_location = self.path
-            else:
-                flow_location = os.path.join(
+            flow_location = self.path or os.path.join(
                     self.directory,
                     slugify(flow.name),
                     slugify(pendulum.now("utc").isoformat()),

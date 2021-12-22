@@ -80,7 +80,7 @@ def LiteralSetValue(value: list) -> str:
     Args:
         - value (list): the value that should be represented as a literal set
     """
-    return "{" + ", ".join(v for v in value) + "}"
+    return "{" + ", ".join(value) + "}"
 
 
 class GQLObject:
@@ -258,11 +258,13 @@ def _parse_arguments_inner(arguments: Any) -> str:
         if len(arguments) == 0:
             return "{}"
 
-        formatted = []
-        for key, value in arguments.items():
-            formatted.append(
-                "{key}: {value}".format(key=key, value=_parse_arguments_inner(value))
+        formatted = [
+            "{key}: {value}".format(
+                key=key, value=_parse_arguments_inner(value)
             )
+            for key, value in arguments.items()
+        ]
+
         return "{ " + ", ".join(formatted) + " }"
     elif isinstance(arguments, (list, tuple, set, KeysView, ValuesView)):
         return "[" + ", ".join([_parse_arguments_inner(a) for a in arguments]) + "]"

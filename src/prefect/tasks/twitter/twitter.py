@@ -53,10 +53,9 @@ class LoadTweetReplies(Task):
             api.search, q="to:" + user, result_type="recent", timeout=999999
         )
 
-        replies = []
-        for tweet in cursor.items(100):
-            if hasattr(tweet, "in_reply_to_status_id_str"):
-                if tweet.in_reply_to_status_id_str == tweet_id:
-                    replies.append(tweet)
-
-        return replies
+        return [
+            tweet
+            for tweet in cursor.items(100)
+            if hasattr(tweet, "in_reply_to_status_id_str")
+            and tweet.in_reply_to_status_id_str == tweet_id
+        ]
